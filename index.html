@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="my" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="description" content="ဘဏ္ဍာစိုး — ဝင်ငွေ၊ ထွက်ငွေ၊ စုငွေ စာရင်း" />
+    <title>ဘဏ္ဍာစိုး</title>
+
+    <link rel="manifest" id="manifestLink" />
+    <link rel="apple-touch-icon" id="appleIcon" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="min-h-full">
+
+<div class="max-w-3xl mx-auto px-4 py-5 pb-32">
+
+    <!-- ============ HEADER ============ -->
+    <header class="flex items-center justify-between gap-3 mb-5">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xl"
+                 style="background: linear-gradient(135deg,#6366f1,#8b5cf6)">🏦</div>
+            <div>
+                <h1 class="text-xl font-bold">ဘဏ္ဍာစိုး</h1>
+                <p class="text-xs text-muted" id="todayLabel"></p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <input type="month" id="monthPicker"
+                   class="rounded-lg border px-3 py-2 text-sm border-app"
+                   style="background:var(--card);color:var(--text)" />
+            <button id="themeToggle" aria-label="Theme"
+                    class="w-10 h-10 rounded-lg border border-app flex items-center justify-center text-lg"
+                    style="background:var(--card)">🌙</button>
+        </div>
+    </header>
+
+    <!-- ============ BALANCE CARD ============ -->
+    <section class="mb-4">
+        <div class="card p-5 shadow-sm">
+            <p class="text-xs text-muted mb-1">💵 လက်ထဲ (လက်ကျန်)</p>
+            <p class="text-3xl font-bold mb-4" id="balanceNum">0 ကျပ်</p>
+
+            <div class="pt-3 mb-4" style="border-top:1px solid var(--border)">
+                <p class="text-xs text-muted mb-1">🏦 စုထားတဲ့ငွေ</p>
+                <p class="text-2xl font-bold" style="color:var(--savings)" id="savingsNum">0 ကျပ်</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-sm pt-3" style="border-top:1px solid var(--border)">
+                <div>
+                    <p class="text-muted text-xs mb-1">▲ ဒီလ ဝင်ငွေ</p>
+                    <p class="font-semibold" style="color:var(--income)" id="monthIncome">0</p>
+                </div>
+                <div>
+                    <p class="text-muted text-xs mb-1">▼ ဒီလ ထွက်ငွေ</p>
+                    <p class="font-semibold" style="color:var(--expense)" id="monthExpense">0</p>
+                </div>
+                <div>
+                    <p class="text-muted text-xs mb-1">🏦 ဒီလ စုငွေ</p>
+                    <p class="font-semibold" style="color:var(--savings)" id="monthSavings">0</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ QUICK ADD ============ -->
+    <section class="grid grid-cols-3 gap-2 mb-6">
+        <button data-add="income"
+                class="rounded-xl py-3 font-medium text-white active:scale-95 transition"
+                style="background:var(--income)">＋ ဝင်ငွေ</button>
+        <button data-add="expense"
+                class="rounded-xl py-3 font-medium text-white active:scale-95 transition"
+                style="background:var(--expense)">− ထွက်ငွေ</button>
+        <button data-add="savings"
+                class="rounded-xl py-3 font-medium text-white active:scale-95 transition"
+                style="background:var(--savings)">🏦 စုငွေ</button>
+    </section>
+
+    <!-- ============ CHARTS ============ -->
+    <section class="space-y-4 mb-6">
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="card p-4">
+                <h2 class="text-xs font-semibold text-muted mb-3">အသုံးစားရိတ် စုစုပေါင်း</h2>
+                <div class="h-52"><canvas id="pieChart"></canvas></div>
+            </div>
+            <div class="card p-4">
+                <h2 class="text-xs font-semibold text-muted mb-3">၆ လ အတွင်း အသုံးစားရိတ်နှိုင်းယှဉ်ချက်</h2>
+                <div class="h-52"><canvas id="barChart"></canvas></div>
+            </div>
+        </div>
+        <div class="card p-4">
+            <h2 class="text-xs font-semibold text-muted mb-3">၆ လအတွင်း အသုံးစရိတ် </h2>
+            <div class="h-56"><canvas id="lineChart"></canvas></div>
+        </div>
+    </section>
+
+    <!-- ============ HISTORY ============ -->
+    <section>
+        <div class="flex items-center justify-between mb-3 gap-2">
+            <h2 class="text-base font-semibold">မှတ်တမ်း</h2>
+            <button id="exportBtn"
+                    class="rounded-lg border border-app px-3 py-1.5 text-xs font-medium flex items-center gap-1"
+                    style="background:var(--card)">📥 Excel</button>
+        </div>
+
+        <input id="searchBox" type="text" placeholder="Note နဲ့ ရှာပါ..."
+               class="w-full rounded-xl border border-app px-4 py-3 text-sm mb-3"
+               style="background:var(--card);color:var(--text)" />
+
+        <div class="flex gap-2 overflow-x-auto pb-1 mb-3 no-scrollbar" id="filterBar"></div>
+
+        <ul id="historyList" class="space-y-2"></ul>
+    </section>
+</div>
+
+<!-- ============ ADD/EDIT MODAL ============ -->
+<div id="modal" class="modal hidden">
+    <div class="modal-overlay" data-close></div>
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+
+        <!-- Header: dynamic icon + title -->
+        <div class="flex items-center gap-3 mb-5">
+            <div id="modalIcon"
+                 class="w-11 h-11 rounded-xl flex items-center justify-center text-white text-lg shrink-0"
+                 style="background:#10b981">▼</div>
+            <h3 id="modalTitle" class="text-lg font-bold">ဝင်ငွေ ထည့်</h3>
+        </div>
+
+        <form id="txForm" class="space-y-4">
+            <input type="hidden" id="txId" />
+            <input type="hidden" id="txType" value="income" />
+
+            <!-- Available balance info (expense/savings) -->
+            <div id="availableInfo"
+                 class="hidden rounded-xl border border-app px-4 py-3 text-sm"
+                 style="background:var(--card-2)">
+                <p class="text-muted text-xs mb-0.5" id="availableLabel">လက်ကျန်ငွေ</p>
+                <p class="font-semibold" id="availableValue">0 ကျပ်</p>
+            </div>
+
+            <!-- Amount -->
+            <div>
+                <label id="txAmountLabel" class="block text-xs text-muted mb-1">ရရှိငွေ (ကျပ်)</label>
+                <input id="txAmount" type="number" inputmode="numeric" required min="1"
+                       placeholder="0"
+                       class="w-full rounded-xl border border-app px-4 py-3 text-2xl font-bold text-right"
+                       style="background:var(--card-2);color:var(--text)" />
+            </div>
+
+            <!-- Date -->
+            <div>
+                <label class="block text-xs text-muted mb-1">ရက်စွဲ</label>
+                <input id="txDate" type="date" required
+                       class="w-full rounded-xl border border-app px-4 py-3 text-sm"
+                       style="background:var(--card-2);color:var(--text)" />
+            </div>
+
+            <!-- Note -->
+            <div>
+                <label id="txNoteLabel" class="block text-xs text-muted mb-1">မှတ်ချက် (optional)</label>
+                <input id="txNote" type="text" maxlength="100"
+                       placeholder=""
+                       class="w-full rounded-xl border border-app px-4 py-3 text-sm"
+                       style="background:var(--card-2);color:var(--text)" />
+            </div>
+
+            <!-- Savings Source Toggle (expense only) -->
+            <div id="savingsToggleWrap" class="hidden rounded-xl border border-app p-4"
+                 style="background:var(--card-2)">
+                <label class="flex items-center justify-between gap-3 cursor-pointer">
+                    <div>
+                        <p class="text-sm font-medium">🏦 စုငွေထဲက ထုတ်သုံးတယ်</p>
+                        <p class="text-xs text-muted mt-0.5" id="savingsAvailableLabel">—</p>
+                    </div>
+                    <input id="txFromSavings" type="checkbox"
+                           class="w-5 h-5 accent-indigo-600" />
+                </label>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" data-close
+                        class="flex-1 rounded-xl border border-app py-3 font-medium"
+                        style="background:var(--card)">ပယ်ဖျက်မည်။</button>
+                <button type="submit" id="submitBtn"
+                        class="flex-1 rounded-xl py-3 font-medium text-white"
+                        style="background:var(--primary)">မှတ်သားမည်။</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============ EXPORT MODAL ============ -->
+<div id="exportModal" class="modal hidden">
+    <div class="modal-overlay" data-close></div>
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <h3 class="text-lg font-bold mb-1">အသုံးစရိတ်စာရင်း Download လုပ်ပါ။</h3>
+        <p class="text-sm text-muted mb-5">ရွေးချယ်ပါ</p>
+
+        <div class="space-y-2">
+            <button data-export="month"
+                    class="w-full text-left rounded-xl border border-app p-4 flex items-center justify-between"
+                    style="background:var(--card-2)">
+                <div>
+                    <p class="font-medium">ယခုလအတွက်</p>
+                    <p class="text-xs text-muted" id="exportMonthLabel">—</p>
+                </div>
+                <span class="text-2xl">📅</span>
+            </button>
+
+            <button data-export="all"
+                    class="w-full text-left rounded-xl border border-app p-4 flex items-center justify-between"
+                    style="background:var(--card-2)">
+                <div>
+                    <p class="font-medium">အားလုံး</p>
+                    <p class="text-xs text-muted" id="exportAllLabel">—</p>
+                </div>
+                <span class="text-2xl">📚</span>
+            </button>
+        </div>
+
+        <button data-close
+                class="w-full mt-4 rounded-xl border border-app py-3 font-medium"
+                style="background:var(--primary);color:#ffffff">မသိမ်းဆည်းတော့ပါ။</button>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

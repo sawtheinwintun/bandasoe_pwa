@@ -1,0 +1,173 @@
+/* =========================================================
+   THEME VARIABLES
+   ========================================================= */
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --card-2: #f8fafc;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --primary: #4f46e5;
+  --income: #4CAF50;
+  --expense: #F44336;
+  --savings: #1E88E5;
+}
+
+html.dark {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-2: #334155;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --primary: #818cf8;
+  --income: #388E3C;
+  --expense: #E53935;
+  --savings: #1976D2;
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Noto Sans Myanmar', 'Pyidaungsu', 'Myanmar Text',
+               system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.2s, color 0.2s;
+}
+
+.text-muted { color: var(--text-muted); }
+.border-app { border-color: var(--border); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+/* =========================================================
+   SCROLLBAR (filter bar)
+   ========================================================= */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =========================================================
+   MODAL (bottom sheet)
+   ========================================================= */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.modal:not(.hidden) {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.modal.hidden { display: flex !important; }
+
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.modal:not(.hidden) .modal-overlay { opacity: 1; }
+
+.modal-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  padding: 1rem 1.25rem 1.5rem;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal:not(.hidden) .modal-sheet { transform: translateY(0); }
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  margin: 0 auto 1rem;
+}
+
+/* =========================================================
+   FILTER CHIPS
+   ========================================================= */
+.filter-chip {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.filter-chip.active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+/* =========================================================
+   BADGE (စုငွေကနေ)
+   ========================================================= */
+.badge-savings {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--savings) 15%, transparent);
+  color: var(--savings);
+  border: 1px solid color-mix(in srgb, var(--savings) 30%, transparent);
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+.fade-in {
+  animation: fade 0.22s ease;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   UTIL
+   ========================================================= */
+input:focus, button:focus { outline: none; }
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
